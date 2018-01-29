@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EfficientFPL</title>
+    <link rel="stylesheet" type="text/css" href="EfficientFPL.css">
+</head>
+<body>
+
+<p id="para">All Players Scoring 65 or Above</p>
+
+<table class="tg" id="playerTable">
+    <tr>
+        <th class="tg-020d">Ranking<br></th>
+        <th class="tg-9hbo">Name</th>
+        <th class="tg-9hbo">Team</th>
+        <th class="tg-9hbo">Position</th>
+        <th class="tg-9hbo" onclick="sortTablePoints()">Total Points</th>
+        <th class="tg-9hbo" onclick="sortTableCost()">Cost</th>
+        <th class="tg-9hbo" onclick="sortTableEff()">Efficiency</th>
+    </tr>
+</table>
+
+
+
+
+</body>
+</html>
+
+<script>
+
+var playerData = 0;
+
+var HttpClient = function() {
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() {
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+                aCallback(anHttpRequest.responseText);
+        }
+
+        anHttpRequest.open( "GET", aUrl, true );
+        anHttpRequest.send( null );
+    }
+}
+
+
+
+getPlayers();
+
+function getPlayers(){
+
+var playerName;
+var playerCost;
+var playerPoints;
+var playerEfficiency;
+var playerPosition;
+var playerTeam
+
+var client = new HttpClient();
+    client.get('https://cors-anywhere.herokuapp.com/https://fantasy.premierleague.com/drf/bootstrap-static', function(response) {
+
+       var resultsArray = JSON.parse(response);
+       var playerData = resultsArray["elements"];
+       //alert(playerData);
+       //var Paragraph = document.getElementById("para");
+       //Paragraph.innerHTML = JSON.stringify(playerData);
+
+       for (var i in playerData)
+        {
+
+            playerPoints = playerData[i].total_points;
+            if(playerPoints < 65){ // get rid of low scoring players
+                continue;
+            }
+
+            playerName = playerData[i].web_name;
+            playerTeam = playerData[i].team_code;
+            playerCost = playerData[i].now_cost / 10;
+            playerPosition = playerData[i].element_type;
+            playerEfficency = (playerPoints / playerCost).toFixed(2);
+
+            if(playerPosition == 1){ // Remove Goalkeepers
+                continue;
+            }
+
+            if (playerPosition == 1){
+                playerPosition = "Goalkeeper"
+            }
+            else if (playerPosition == 2){
+                playerPosition = "Defender"
+            }
+            else if (playerPosition == 3){
+                playerPosition = "Midfielder"
+            }
+            else{
+                playerPosition = "Forward"
+            }
+
+            switch (playerTeam) {
+            case 3:
+                playerTeam = "Arsenal";
+                break;
+            case 91:
+                playerTeam = "Bournemouth";
+                break;
+            case 36:
+                playerTeam = "Brighton & Hove Albion";
+                break;
+            case 90:
+                playerTeam = "Burnley";
+                break;
+            case 8:
+                playerTeam = "Chelsea";
+                break;
+            case 31:
+                playerTeam = "Crystal Palace";
+                break;
+            case 11:
+                playerTeam = "Everton";
+                break;
+            case 38:
+                playerTeam = "Huddersfield Town";
+                break;
+            case 13:
+                playerTeam = "Leicester City";
+                break;
+            case 14:
+                playerTeam = "Liverpool";
+                break;
+            case 43:
+                playerTeam = "Manchester City";
+                break;
+            case 1:
+                playerTeam = "Manchester United";
+                break;
+            case 4:
+                playerTeam = "Newcastle United";
+                break;
+            case 20:
+                playerTeam = "Southampton";
+                break;
+            case 110:
+                playerTeam = "Stoke City";
+                break;
+            case 80:
+                playerTeam = "Swansea City";
+                break;
+            case 6:
+                playerTeam = "Tottenham Hotspur";
+                break;
+            case 57:
+                playerTeam = "Watford";
+                break;
+            case 35:
+                playerTeam = "West Bromwich Albion";
+                break;
+            case 21:
+                playerTeam = "West Ham United";
+}
+
+
+
+            //alert(" Player Name: " + playerData[i].web_name + " Total Points: " + playerData[i].total_points + " Player Cost: " + playerData[i].now_cost);
+            //console.log(i);
+            createRow(playerName, playerPosition, playerPoints, playerCost, playerEfficency, playerTeam);
+        }
+
+    });
+}
+
+function createRow (name, position, points, cost, eff, team)
+{
+    var table = document.getElementById("playerTable");
+    var oRows = document.getElementById('playerTable').getElementsByTagName('tr');
+    var numberOfRows = oRows.length;
+
+    //alert('Your table has ' + numberOfRows + ' rows.');
+
+    var row = table.insertRow(numberOfRows);
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+    var cell3 = row.insertCell(2);
+    var cell4 = row.insertCell(3);
+    var cell5 = row.insertCell(4);
+    var cell6 = row.insertCell(5);
+    var cell7 = row.insertCell(6);
+    cell1.innerHTML = numberOfRows;
+    cell2.innerHTML = name;
+    cell3.innerHTML = team;
+    cell4.innerHTML = position;
+    cell5.innerHTML = points;
+    cell6.innerHTML = cost;
+    cell7.innerHTML = eff;
+
+
+}
+
+
+
+function sortTableEff() {
+  var table, rows, switching, i, x, y, shouldSwitch;
+  //alert("in sortTableEff");
+  table = document.getElementById("playerTable");
+  switching = true;
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.getElementsByTagName("TR");
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[6];
+      y = rows[i + 1].getElementsByTagName("TD")[6];
+      // Check if the two rows should switch place:
+      if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
+        // I so, mark as a switch and break the loop:
+        shouldSwitch= true;
+        break;
+      }
+    }
+    if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+    }
+  }
+
+  var table=document.getElementById("playerTable");
+    var r=1;
+    while(row=table.rows[r++])
+    {
+     var c=0;
+    while(cell=row.cells[c++])
+  {
+    if(c == 1)
+    {
+        cell.innerHTML=r-1; // change ranking cell for each row
+    }
+  }
+}
+}
+
+function sortTableCost() {
+  var table, rows, switching, i, x, y, shouldSwitch;
+  //alert("in sortTableCost");
+  table = document.getElementById("playerTable");
+  switching = true;
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.getElementsByTagName("TR");
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[5];
+      y = rows[i + 1].getElementsByTagName("TD")[5];
+      // Check if the two rows should switch place:
+      if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
+        // I so, mark as a switch and break the loop:
+        shouldSwitch= true;
+        break;
+      }
+    }
+    if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+    }
+  }
+
+  var table=document.getElementById("playerTable");
+    var r=1;
+    while(row=table.rows[r++])
+    {
+     var c=0;
+    while(cell=row.cells[c++])
+  {
+    if(c == 1)
+    {
+        cell.innerHTML=r-1; // change ranking cell for each row
+    }
+  }
+}
+}
+
+function sortTablePoints() {
+  var table, rows, switching, i, x, y, shouldSwitch;
+  //alert("in sortTablePoints");
+  table = document.getElementById("playerTable");
+  switching = true;
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.getElementsByTagName("TR");
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[4];
+      y = rows[i + 1].getElementsByTagName("TD")[4];
+      // Check if the two rows should switch place:
+      if (parseInt(x.innerHTML) < parseInt(y.innerHTML)) {
+        // I so, mark as a switch and break the loop:
+        shouldSwitch= true;
+        break;
+      }
+    }
+    if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+    }
+  }
+
+  var table=document.getElementById("playerTable");
+    var r=1;
+    while(row=table.rows[r++])
+    {
+     var c=0;
+    while(cell=row.cells[c++])
+  {
+    if(c == 1)
+    {
+        cell.innerHTML=r-1; // change ranking cell for each row
+    }
+  }
+}
+}
+
+</script>
