@@ -7,7 +7,25 @@
 </head>
 <body>
 
-<p id="para">All Players Scoring 65 or Above</p>
+<p id="para"></p>
+
+<div>
+    <label>Minimum points needed: </label>
+    <input type="number" id="pointsInput" onblur="changePara()">
+</div>
+
+<div>
+    <label>Exclude Goalkeepers</label>
+    <input type="checkbox" id = "goalkeeperCheck" onclick="getPlayers()" checked>
+    <label>Exclude Defenders</label>
+    <input type="checkbox" id = "defenderCheck" onclick="getPlayers()">
+    <label>Exclude Midfielders</label>
+    <input type="checkbox" id = "midfielderCheck" onclick="getPlayers()">
+    <label>Exclude Forwards</label>
+    <input type="checkbox" id = "forwardCheck" onclick="getPlayers()">
+
+</div>
+
 
 <table class="tg" id="playerTable">
     <tr>
@@ -28,8 +46,9 @@
 </html>
 
 <script>
-
+var pointsNeeded = 70; // points needed to be included in table
 var playerData = 0;
+
 
 var HttpClient = function() {
     this.get = function(aUrl, aCallback) {
@@ -45,17 +64,24 @@ var HttpClient = function() {
 }
 
 
+changePara(); // change opening paragraph to pointsNeeded also includes first getPlayers() call to generate table
 
-getPlayers();
 
 function getPlayers(){
+
+deleteAllRows(); //delete old table
 
 var playerName;
 var playerCost;
 var playerPoints;
 var playerEfficiency;
 var playerPosition;
-var playerTeam
+var playerTeam;
+
+var goalkeeperCheck = document.getElementById("goalkeeperCheck").checked; // find out if box is checked or not
+var defenderCheck = document.getElementById("defenderCheck").checked;
+var midfielderCheck = document.getElementById("midfielderCheck").checked;
+var forwardCheck = document.getElementById("forwardCheck").checked;
 
 var client = new HttpClient();
     client.get('https://cors-anywhere.herokuapp.com/https://fantasy.premierleague.com/drf/bootstrap-static', function(response) {
@@ -70,7 +96,7 @@ var client = new HttpClient();
         {
 
             playerPoints = playerData[i].total_points;
-            if(playerPoints < 65){ // get rid of low scoring players
+            if(playerPoints < pointsNeeded){ // get rid of low scoring players
                 continue;
             }
 
@@ -80,7 +106,19 @@ var client = new HttpClient();
             playerPosition = playerData[i].element_type;
             playerEfficency = (playerPoints / playerCost).toFixed(2);
 
-            if(playerPosition == 1){ // Remove Goalkeepers
+            if(playerPosition == 1 && goalkeeperCheck){ // Remove Goalkeepers
+                continue;
+            }
+
+            if(playerPosition == 2 && defenderCheck){ // Remove defenders
+                continue;
+            }
+
+            if(playerPosition == 3 && midfielderCheck){ // Remove Midfielders
+                continue;
+            }
+
+            if(playerPosition == 4 && forwardCheck){ // Remove Forwards
                 continue;
             }
 
@@ -195,6 +233,22 @@ function createRow (name, position, points, cost, eff, team)
 
 
 }
+
+function deleteAllRows () {
+
+    var table = document.getElementById("playerTable");
+    var oRows = document.getElementById("playerTable").getElementsByTagName("tr");
+    var numberOfRows = oRows.length;
+
+
+        for (var x = numberOfRows-1; x > 0; x--) {
+            //alert("x = " + x);
+            table.deleteRow(x);
+        }
+
+}
+
+
 
 
 
@@ -346,6 +400,19 @@ function sortTablePoints() {
     }
   }
 }
+}
+
+function changePara(){
+
+var pointsInput = document.getElementById("pointsInput").value;
+//alert(pointsInput);
+if(pointsInput > 0){
+pointsNeeded = pointsInput;
+}
+var para = document.getElementById("para");
+para.innerHTML = "All Players Scoring " + pointsNeeded + " or Above"
+
+getPlayers(); // first call to generate table
 }
 
 </script>
