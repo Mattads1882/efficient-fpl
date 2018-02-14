@@ -83,7 +83,7 @@ var defenderCheck = document.getElementById("defenderCheck").checked;
 var midfielderCheck = document.getElementById("midfielderCheck").checked;
 var forwardCheck = document.getElementById("forwardCheck").checked;
 
-var client = new HttpClient();
+var client = new HttpClient(); // Pull player data from FPL site
     client.get('https://cors-anywhere.herokuapp.com/https://fantasy.premierleague.com/drf/bootstrap-static', function(response) {
 
        var resultsArray = JSON.parse(response);
@@ -201,13 +201,13 @@ var client = new HttpClient();
 
             //alert(" Player Name: " + playerData[i].web_name + " Total Points: " + playerData[i].total_points + " Player Cost: " + playerData[i].now_cost);
             //console.log(i);
-            createRow(playerName, playerPosition, playerPoints, playerCost, playerEfficency, playerTeam);
+            createRow(playerName, playerPosition, playerPoints, playerCost, playerEfficency, playerTeam); // create table rows with player data
         }
 
     });
 }
 
-function createRow (name, position, points, cost, eff, team)
+function createRow (name, position, points, cost, eff, team) // Create table rows with player data
 {
     var table = document.getElementById("playerTable");
     var oRows = document.getElementById('playerTable').getElementsByTagName('tr');
@@ -252,7 +252,7 @@ function deleteAllRows () {
 
 
 
-function sortTableEff() {
+function sortTableEff() { // sort table by player's effciency
   var table, rows, switching, i, x, y, shouldSwitch;
   //alert("in sortTableEff");
   table = document.getElementById("playerTable");
@@ -302,7 +302,7 @@ function sortTableEff() {
 }
 }
 
-function sortTableCost() {
+function sortTableCost() { // sort table by player's cost
   var table, rows, switching, i, x, y, shouldSwitch;
   //alert("in sortTableCost");
   table = document.getElementById("playerTable");
@@ -352,7 +352,7 @@ function sortTableCost() {
 }
 }
 
-function sortTablePoints() {
+function sortTablePoints() { // sort table by player's total points
   var table, rows, switching, i, x, y, shouldSwitch;
   //alert("in sortTablePoints");
   table = document.getElementById("playerTable");
@@ -402,7 +402,7 @@ function sortTablePoints() {
 }
 }
 
-function changePara(){
+function changePara(){ // change paragraph displaying the minimum total points a player needs to be included in the table
 
 var pointsInput = document.getElementById("pointsInput").value;
 //alert(pointsInput);
